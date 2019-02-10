@@ -19,7 +19,7 @@ class DockerUtility extends AbstractPipelineUtility {
    *
    * @param timeoutInSeconds time in seconds after restarting
    */
-  def dockerDaemonRestart(timeoutInSeconds) {
+  void dockerDaemonRestart(def timeoutInSeconds) {
     print("RESTARTING DOCKER DAEMON...")
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
     this.pipeline.sh "\$(service docker start && sleep ${timeoutInSeconds}) || true"
@@ -30,7 +30,7 @@ class DockerUtility extends AbstractPipelineUtility {
    * Logs in into Docker registry.
    * @param registryCredentialsId credentials id configured in Jenkins.
    */
-  def registryLogin(registryCredentialsId) {
+  void registryLogin(def registryCredentialsId) {
     print("PERFORMING REGISTRY LOGIN...")
     // perform inside credential injection block
     withCredentials([[$class          : 'UsernamePasswordMultiBinding',
