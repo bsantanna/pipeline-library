@@ -28,4 +28,20 @@ abstract class AbstractPipelineUtility implements Serializable {
     this.pipeline.echo this.className + ": " + inputMessage
   }
 
+  /**
+   * Default error handling function with local directory
+   * @param message message for debugging purposes
+   * @param e exception to be thrown
+   */
+  def defaultErrorHandler(message, e) {
+    print("==== ERROR ====")
+    print(message)
+    print("==== CURRENT DIR ====")
+    this.pipeline.sh "pwd"
+    print("==== DIR CONTENT ====")
+    this.pipeline.sh "ls -lh ."
+    print("==== STACK TRACE CONTENT ====")
+    throw e
+  }
+
 }
