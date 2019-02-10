@@ -10,7 +10,7 @@ class DockerUtility extends AbstractPipelineUtility {
    * Constructor with pipeline reference injection.
    * @param pipeline pipeline being executed
    */
-  DockerUtility(def pipeline) {
+  DockerUtility(Script pipeline) {
     super(pipeline)
   }
 

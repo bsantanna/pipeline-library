@@ -8,14 +8,14 @@ package software.btech.pipeline
  */
 abstract class AbstractPipelineUtility implements Serializable {
 
-  final def pipeline
-  final def className
+  final Script pipeline
+  final String className
 
   /**
    * Constructor with pipeline reference injection.
    * @param pipeline pipeline being executed
    */
-  AbstractPipelineUtility(pipeline) {
+  AbstractPipelineUtility(Script pipeline) {
     this.pipeline = pipeline
     this.className = this.getClass().getSimpleName()
   }
