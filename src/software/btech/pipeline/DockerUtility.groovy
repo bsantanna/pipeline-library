@@ -50,10 +50,10 @@ class DockerUtility extends AbstractPipelineUtility {
   void registryLogin(def registryCredentialsId) {
     print("PERFORMING REGISTRY LOGIN...")
     // perform inside credential injection block
-    withCredentials([[$class          : 'UsernamePasswordMultiBinding',
-                      credentialsId   : registryCredentialsId,
-                      usernameVariable: 'DOCKER_REGISTRY_USERNAME',
-                      passwordVariable: 'DOCKER_REGISTRY_PASSWORD']]) {
+    this.pipeline.withCredentials([[$class          : 'UsernamePasswordMultiBinding',
+                                    credentialsId   : registryCredentialsId,
+                                    usernameVariable: 'DOCKER_REGISTRY_USERNAME',
+                                    passwordVariable: 'DOCKER_REGISTRY_PASSWORD']]) {
 
       this.pipeline.sh "" +
           "docker login " +
