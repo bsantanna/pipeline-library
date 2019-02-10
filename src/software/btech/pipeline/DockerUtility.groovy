@@ -25,7 +25,7 @@ class DockerUtility extends AbstractPipelineUtility {
     print("\tTag: ${tag}")
     print("\tBase Tag: ${baseTag}")
     print("\tBuild Context: ${buildContext}")
-    dir(buildContext) {
+    this.pipeline.dir(buildContext) {
       this.pipeline.sh "docker pull ${baseTag}"
       this.pipeline.sh "docker build -t ${tag} ."
     }
