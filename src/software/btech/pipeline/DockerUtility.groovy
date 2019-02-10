@@ -19,7 +19,7 @@ class DockerUtility extends AbstractPipelineUtility {
    *
    * @param timeoutInSeconds time in seconds after restarting
    */
-  def daemonCleanRestart(timeoutInSeconds) {
+  def dockerDaemonRestart(timeoutInSeconds) {
     print("RESTARTING DOCKER DAEMON...")
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
     this.pipeline.sh "\$(service docker start && sleep ${timeoutInSeconds}) || true"

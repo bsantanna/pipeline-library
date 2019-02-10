@@ -20,7 +20,7 @@ class ArchiveUtility extends AbstractPipelineUtility {
    */
   def unarchiveFile(filename) {
     try {
-      this.pipeline.copyArtifacts filter: "${filename}", projectName: "${env.JOB_NAME}", selector: lastCompleted(), target: "."
+      this.pipeline.copyArtifacts filter: "${filename}", projectName: "${this.pipeline.env.JOB_NAME}", selector: this.pipeline.lastCompleted(), target: "."
       this.pipeline.sh "tar -zxf ${filename} && rm ${filename}"
     } catch (ignored) {
       print("Archive not found: ${ignored}")
