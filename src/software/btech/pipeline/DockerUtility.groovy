@@ -76,6 +76,7 @@ class DockerUtility extends AbstractPipelineUtility {
     print("\tTag: ${tag}")
     print("\tVolume Source: ${volumeSource}")
     print("\tVolume Destination: ${volumeDestination}")
+    this.pipeline.sh "docker pull ${tag} || true"
     this.pipeline.sh "docker run -i --rm -v ${volumeSource}:${volumeDestination} ${tag}"
   }
 
