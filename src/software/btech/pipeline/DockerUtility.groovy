@@ -80,4 +80,21 @@ class DockerUtility extends AbstractPipelineUtility {
     this.pipeline.sh "docker run -i --rm -v ${volumeSource}:${volumeDestination} ${tag}"
   }
 
+  /**
+   * Run Docker container with given arguments
+   * @param tag
+   * @param volumeSource
+   * @param volumeDestination
+   * @param command
+   */
+  void runContainerWithCommand(def tag, def volumeSource, def volumeDestination, def command) {
+    print("RUNNING DOCKER CONTAINER WITH COMMAND")
+    print("\tTag: ${tag}")
+    print("\tVolume Source: ${volumeSource}")
+    print("\tVolume Destination: ${volumeDestination}")
+    print("\tCommand: ${command}")
+    this.pipeline.sh "docker pull ${tag} || true"
+    this.pipeline.sh "docker run -i --rm -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
+  }
+
 }
