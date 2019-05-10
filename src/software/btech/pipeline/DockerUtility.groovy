@@ -52,6 +52,7 @@ class DockerUtility extends AbstractPipelineUtility {
   void dockerDaemonRestart(def timeoutInSeconds) {
     print("RESTARTING DOCKER DAEMON...")
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
+    this.pipeline.sh "\$(service docker stop && sleep ${timeoutInSeconds}) || true"
     if (this.proxy != null) {
       String proxyConfigCommand = "echo '{\"insecure-registries\":[\"http://"
       proxyConfigCommand += proxy + "\"],\"experimental\":false,\"debug\":false,\"registry-mirrors\":[\"http://"
