@@ -1,17 +1,30 @@
 #!groovy
 package software.btech.pipeline
 
+
 /**
  * Docker utility class with reusable pipeline functions based on image bsantanna/jenkins-docker-agent
  */
 class DockerUtility extends AbstractPipelineUtility {
+
+  final String proxy
 
   /**
    * Constructor with pipeline reference injection.
    * @param pipeline pipeline being executed
    */
   DockerUtility(Script pipeline) {
+    this(pipeline, null)
+  }
+
+  /**
+   * Constructor with pipeline reference injection and proxy property set
+   * @param pipeline
+   * @param proxy
+   */
+  DockerUtility(Script pipeline, String proxy) {
     super(pipeline)
+    this.proxy = proxy
   }
 
   /**
@@ -39,6 +52,12 @@ class DockerUtility extends AbstractPipelineUtility {
   void dockerDaemonRestart(def timeoutInSeconds) {
     print("RESTARTING DOCKER DAEMON...")
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
+    if (this.proxy != null) {
+      String proxyConfigCommand = "echo '{\"insecure-registries\":[\"http://"
+      proxyConfigCommand += proxy + "\"],\"experimental\":false,\"debug\":false,\"registry-mirrors\":[\"http://"
+      proxyConfigCommand += proxy + "\"]}' > /etc/docker/daemon.json"
+      this.pipeline.sh proxyConfigCommand
+    }
     this.pipeline.sh "\$(service docker start && sleep ${timeoutInSeconds}) || true"
     print("DOCKER DAEMON RESTART COMPLETE")
   }
