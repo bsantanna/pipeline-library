@@ -56,6 +56,8 @@ class DockerUtility extends AbstractPipelineUtility {
       String proxyConfigCommand = "echo '{\"insecure-registries\":[\"http://"
       proxyConfigCommand += proxy + "\"],\"experimental\":false,\"debug\":false,\"registry-mirrors\":[\"http://"
       proxyConfigCommand += proxy + "\"]}' > /etc/docker/daemon.json"
+      print("SETTING UP PROXY FOR DOCKER DAEMON: ")
+      print(proxyConfigCommand)
       this.pipeline.sh proxyConfigCommand
     }
     this.pipeline.sh "\$(service docker start && sleep ${timeoutInSeconds}) || true"
