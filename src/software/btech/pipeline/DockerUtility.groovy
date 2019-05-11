@@ -120,4 +120,13 @@ class DockerUtility extends AbstractPipelineUtility {
     this.pipeline.sh "docker run -i --rm -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
   }
 
+  /**
+   * Clear image cache
+   */
+  void clearImageCache() {
+    print("CLEANING IMAGE CACHE")
+    this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
+    this.pipeline.sh "docker rmi --force \$(docker images -q) || true"
+  }
+
 }
