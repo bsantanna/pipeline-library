@@ -53,15 +53,18 @@ class DockerUtility extends AbstractPipelineUtility {
     print("RESTARTING DOCKER DAEMON...")
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
     this.pipeline.sh "\$(service docker stop && sleep ${timeoutInSeconds}) || true"
+    String configCommand = "echo '{\"experimental\":false,\"debug\":false,\"storage-driver\":\"vfs\"",
     if (this.proxy != null) {
-      this.pipeline.sh "mkdir /etc/docker || true"
-      String proxyConfigCommand = "echo '{\"insecure-registries\":[\"http://"
-      proxyConfigCommand += proxy + "\"],\"experimental\":false,\"debug\":false,\"registry-mirrors\":[\"http://"
-      proxyConfigCommand += proxy + "\"]}' > /etc/docker/daemon.json"
-      print("SETTING UP PROXY FOR DOCKER DAEMON: ")
-      print(proxyConfigCommand)
-      this.pipeline.sh proxyConfigCommand
+      configCommand += "\",insecure-registries\":[\"http://" + proxy + "\"]"
+      configCommand += "\",registry-mirrors\":[\"http://" + proxy + "\"]"
     }
+    configCommand += "}' > /etc/docker/daemon.json"
+
+    print("SETTING UP DOCKER DAEMON CONFIG:")
+    print(configCommand)
+    this.pipeline.sh "mkdir /etc/docker || true"
+    this.pipeline.sh configCommand
+
     this.pipeline.sh "\$(service docker start && sleep ${timeoutInSeconds}) || true"
     print("DOCKER DAEMON RESTART COMPLETE")
   }
