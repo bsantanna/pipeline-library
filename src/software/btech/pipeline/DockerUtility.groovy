@@ -55,8 +55,8 @@ class DockerUtility extends AbstractPipelineUtility {
     this.pipeline.sh "\$(service docker stop && sleep ${timeoutInSeconds}) || true"
     String configCommand = "echo '{\"experimental\":false, \"debug\":false, \"storage-driver\":\"overlay2\""
     if (this.proxy != null) {
-      configCommand += ", insecure-registries\":[\"http://" + proxy + "\"]"
-      configCommand += ", registry-mirrors\":[\"http://" + proxy + "\"]"
+      configCommand += ", \"insecure-registries\":[\"http://" + proxy + "\"]"
+      configCommand += ", \"registry-mirrors\":[\"http://" + proxy + "\"]"
     }
     configCommand += "}' > /etc/docker/daemon.json"
 
