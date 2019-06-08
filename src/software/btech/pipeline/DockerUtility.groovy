@@ -65,7 +65,8 @@ class DockerUtility extends AbstractPipelineUtility {
     this.pipeline.sh "mkdir /etc/docker || true"
     this.pipeline.sh configCommand
 
-    this.pipeline.sh "\$(killall -9 dockerd && dockerd & sleep ${timeoutInSeconds}) || true"
+    this.pipeline.sh "killall -9 dockerd || true"
+    this.pipeline.sh "dockerd & sleep ${timeoutInSeconds} || true "
     print("DOCKER DAEMON RESTART COMPLETE")
   }
 
