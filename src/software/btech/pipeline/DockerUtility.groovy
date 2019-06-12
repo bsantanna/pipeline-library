@@ -53,7 +53,7 @@ class DockerUtility extends AbstractPipelineUtility {
     print("RESTARTING DOCKER DAEMON...")
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
     this.pipeline.sh "\$(service docker stop && sleep ${timeoutInSeconds}) || true"
-    String configCommand = "echo '{\"experimental\":false, \"debug\":false, \"storage-driver\":\"overlay\""
+    String configCommand = "echo '{\"experimental\":false, \"debug\":false, \"storage-driver\":\"overlay2\""
     if (this.proxy != null) {
       configCommand += ", \"insecure-registries\":[\"http://" + proxy + "\"]"
       configCommand += ", \"registry-mirrors\":[\"http://" + proxy + "\"]"
