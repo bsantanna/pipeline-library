@@ -106,6 +106,7 @@ class DockerUtility extends AbstractPipelineUtility {
     this.pipeline.sh "docker pull ${tag} || true"
     this.pipeline.sh "mkdir -p /mnt/docker || true"
     this.pipeline.sh "docker run -i --rm -v /mnt/docker:/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag}"
+    this.pipeline.sh "rm -fr /mnt/docker || true"
   }
 
   /**
@@ -124,6 +125,7 @@ class DockerUtility extends AbstractPipelineUtility {
     this.pipeline.sh "docker pull ${tag} || true"
     this.pipeline.sh "mkdir -p /mnt/docker || true"
     this.pipeline.sh "docker run -i --rm -v /mnt/docker:/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
+    this.pipeline.sh "rm -fr /mnt/docker || true"
   }
 
   /**
