@@ -104,7 +104,8 @@ class DockerUtility extends AbstractPipelineUtility {
     print("\tVolume Source: ${volumeSource}")
     print("\tVolume Destination: ${volumeDestination}")
     this.pipeline.sh "docker pull ${tag} || true"
-    this.pipeline.sh "docker run -i --rm -v ${volumeSource}:${volumeDestination} ${tag}"
+    this.pipeline.sh "mkdir -p /mnt/docker || true"
+    this.pipeline.sh "docker run -i --rm -v /mnt/docker:/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag}"
   }
 
   /**
@@ -121,7 +122,8 @@ class DockerUtility extends AbstractPipelineUtility {
     print("\tVolume Destination: ${volumeDestination}")
     print("\tCommand: ${command}")
     this.pipeline.sh "docker pull ${tag} || true"
-    this.pipeline.sh "docker run -i --rm -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
+    this.pipeline.sh "mkdir -p /mnt/docker || true"
+    this.pipeline.sh "docker run -i --rm -v /mnt/docker:/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
   }
 
   /**
