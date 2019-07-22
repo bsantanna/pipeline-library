@@ -10,7 +10,7 @@ class ArchiveUtility extends AbstractPipelineUtility {
    * Constructor with pipeline reference injection.
    * @param pipeline pipeline being executed
    */
-  ArchiveUtility(def pipeline) {
+  ArchiveUtility(Script pipeline) {
     super(pipeline)
   }
 
@@ -18,7 +18,7 @@ class ArchiveUtility extends AbstractPipelineUtility {
    * Unarchive file, useful for recovering dependencies such as m2 repository or node_modules
    * @param filename name of previous file.
    */
-  void unarchiveFile(def filename) {
+  void unarchiveFile(String filename) {
     try {
       this.pipeline.copyArtifacts filter: "${filename}", projectName: "${this.pipeline.env.JOB_NAME}", selector: this.pipeline.lastCompleted(), target: "."
       this.pipeline.sh "tar -zxf ${filename} && rm ${filename}"
@@ -32,7 +32,7 @@ class ArchiveUtility extends AbstractPipelineUtility {
    * Archive file, useful for storing dependencies from previous builds such as maven m2 repository or node_modules
    * @param filename
    */
-  void archiveFile(def filename) {
+  void archiveFile(String filename) {
     try {
       this.pipeline.sh "tar -czf ${filename} archive"
       this.pipeline.archiveArtifacts filename

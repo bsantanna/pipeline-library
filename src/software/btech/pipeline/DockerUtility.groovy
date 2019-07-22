@@ -7,7 +7,7 @@ package software.btech.pipeline
  */
 class DockerUtility extends AbstractPipelineUtility {
 
-  final String proxy
+  final Map<String, String> configuration
 
   /**
    * Constructor with pipeline reference injection.
@@ -18,13 +18,13 @@ class DockerUtility extends AbstractPipelineUtility {
   }
 
   /**
-   * Constructor with pipeline reference injection and proxy property set
+   * Constructor with pipeline reference injection and configuration map
    * @param pipeline
-   * @param proxy
+   * @param configuration
    */
-  DockerUtility(Script pipeline, String proxy) {
+  DockerUtility(Script pipeline, Map<String, String> configuration) {
     super(pipeline)
-    this.proxy = proxy
+    this.configuration = configuration
   }
 
   /**
@@ -33,7 +33,7 @@ class DockerUtility extends AbstractPipelineUtility {
    * @param baseTag
    * @param tag
    */
-  void buildImage(def buildContext, def baseTag, def tag) {
+  void buildImage(String buildContext, String baseTag, String tag) {
     print("BUILDING DOCKER IMAGE")
     print("\tTag: ${tag}")
     print("\tBase Tag: ${baseTag}")
@@ -54,9 +54,9 @@ class DockerUtility extends AbstractPipelineUtility {
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
     this.pipeline.sh "\$(service docker stop && sleep ${timeoutInSeconds}) || true"
     String configCommand = "echo '{\"experimental\":false, \"debug\":false, \"storage-driver\":\"vfs\""
-    if (this.proxy != null) {
-      configCommand += ", \"insecure-registries\":[\"http://" + proxy + "\"]"
-      configCommand += ", \"registry-mirrors\":[\"http://" + proxy + "\"]"
+    if (this.configuration.containsKey("proxy")) {
+      configCommand += ", \"insecure-registries\":[\"http://" + this.configuration.get("proxy") + "\"]"
+      configCommand += ", \"registry-mirrors\":[\"http://" + this.configuration.get("proxy") + "\"]"
     }
     configCommand += "}' > /etc/docker/daemon.json"
 
@@ -74,7 +74,7 @@ class DockerUtility extends AbstractPipelineUtility {
    * Logs in into Docker registry.
    * @param registryCredentialsId credentials id configured in Jenkins.
    */
-  void registryLogin(def registryCredentialsId) {
+  void registryLogin(String registryCredentialsId) {
     print("PERFORMING REGISTRY LOGIN...")
     // perform inside credential injection block
     this.pipeline.withCredentials([[$class          : 'UsernamePasswordMultiBinding',
@@ -94,37 +94,38 @@ class DockerUtility extends AbstractPipelineUtility {
   /**
    * Run Docker container with given arguments.
    *
-   * @param tag
-   * @param volumeSource
-   * @param volumeDestination
+   * @param tag image tag
+   * @param volumeSource origin host volume
+   * @param volumeDestination destination guest volume
    */
-  void runContainer(def tag, def volumeSource, def volumeDestination) {
-    print("RUNNING DOCKER CONTAINER")
-    print("\tTag: ${tag}")
-    print("\tVolume Source: ${volumeSource}")
-    print("\tVolume Destination: ${volumeDestination}")
-    this.pipeline.sh "docker pull ${tag} || true"
-    this.pipeline.sh "mkdir -p /mnt/docker || true"
-    this.pipeline.sh "docker run -i --rm -v /mnt/docker:/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag}"
-    this.pipeline.sh "rm -fr /mnt/docker || true"
+  void runContainer(String tag, String volumeSource, String volumeDestination) {
+    this.runContainerWithCommand(tag, volumeSource, volumeDestination, null, "")
   }
 
   /**
    * Run Docker container with given arguments
-   * @param tag
-   * @param volumeSource
-   * @param volumeDestination
-   * @param command
+   * @param tag image tag
+   * @param volumeSource origin host volume
+   * @param volumeDestination destination guest volume
+   * @param envs environment variables
+   * @param command command to be executed
    */
-  void runContainerWithCommand(def tag, def volumeSource, def volumeDestination, def command) {
-    print("RUNNING DOCKER CONTAINER WITH COMMAND")
+  void runContainerWithCommand(String tag, String volumeSource, String volumeDestination, Map<String, String> envs, String command) {
+    print("RUNNING DOCKER CONTAINER")
     print("\tTag: ${tag}")
     print("\tVolume Source: ${volumeSource}")
     print("\tVolume Destination: ${volumeDestination}")
-    print("\tCommand: ${command}")
+
+    String envArgs = ""
+    if (envs != null) {
+      for (String key : envs.keySet()) {
+        envArgs += "-e " + key + "=" + envs.get(key) + " "
+      }
+    }
+
     this.pipeline.sh "docker pull ${tag} || true"
     this.pipeline.sh "mkdir -p /mnt/docker || true"
-    this.pipeline.sh "docker run -i --rm -v /mnt/docker:/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
+    this.pipeline.sh "docker run -i " + envArgs + " --rm -v /mnt/docker:/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
     this.pipeline.sh "rm -fr /mnt/docker || true"
   }
 
