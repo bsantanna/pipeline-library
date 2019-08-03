@@ -53,17 +53,23 @@ class DockerUtility extends AbstractPipelineUtility {
     print("RESTARTING DOCKER DAEMON...")
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
     this.pipeline.sh "\$(service docker stop && sleep ${timeoutInSeconds}) || true"
-    String configCommand = "echo '{\"experimental\":false, \"debug\":false, \"storage-driver\":\"vfs\""
-    if (this.configuration.containsKey("proxy")) {
-      configCommand += ", \"insecure-registries\":[\"http://" + this.configuration.get("proxy") + "\"]"
-      configCommand += ", \"registry-mirrors\":[\"http://" + this.configuration.get("proxy") + "\"]"
-    }
-    configCommand += "}' > /etc/docker/daemon.json"
 
-    print("SETTING UP DOCKER DAEMON CONFIG:")
-    print(configCommand)
-    this.pipeline.sh "mkdir /etc/docker || true"
-    this.pipeline.sh configCommand
+    String setupKey = "skipDaemonSetup"
+    if (!this.configuration.containsKey(setupKey) || !this.configuration.get(setupKey)) {
+
+      String configCommand = "echo '{\"experimental\":false, \"debug\":false, \"storage-driver\":\"vfs\""
+      if (this.configuration.containsKey("proxy")) {
+        configCommand += ", \"insecure-registries\":[\"http://" + this.configuration.get("proxy") + "\"]"
+        configCommand += ", \"registry-mirrors\":[\"http://" + this.configuration.get("proxy") + "\"]"
+      }
+      configCommand += "}' > /etc/docker/daemon.json"
+
+      print("SETTING UP DOCKER DAEMON CONFIG:")
+      print(configCommand)
+      this.pipeline.sh "mkdir /etc/docker || true"
+      this.pipeline.sh configCommand
+
+    }
 
     this.pipeline.sh "killall -9 dockerd || true"
     this.pipeline.sh "dockerd & sleep ${timeoutInSeconds} || true "
