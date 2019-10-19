@@ -1,28 +1,22 @@
 #!groovy
-package software.btech.pipeline
+package software.btech.pipeline.docker
 
+import software.btech.pipeline.AbstractPipelineUtility
 
 /**
- * Docker utility class with reusable pipeline functions based on image bsantanna/jenkins-docker-agent
+ * Abstract Docker Utility used to declare
  */
-class DockerUtility extends AbstractPipelineUtility {
+abstract class AbstractDockerUtility extends AbstractPipelineUtility {
 
   final Map<String, String> configuration
 
   /**
-   * Constructor with pipeline reference injection.
-   * @param pipeline pipeline being executed
-   */
-  DockerUtility(Script pipeline) {
-    this(pipeline, null)
-  }
-
-  /**
    * Constructor with pipeline reference injection and configuration map
+   *
    * @param pipeline
    * @param configuration
    */
-  DockerUtility(Script pipeline, Map<String, String> configuration) {
+  AbstractDockerUtility(Script pipeline, Map<String, String> configuration) {
     super(pipeline)
     this.configuration = configuration
   }
@@ -42,38 +36,6 @@ class DockerUtility extends AbstractPipelineUtility {
       this.pipeline.sh "docker pull ${baseTag}"
       this.pipeline.sh "docker build -t ${tag} ."
     }
-  }
-
-  /**
-   * Removes all pipeline, restarts daemon service and sleeps for cooldown time
-   *
-   * @param timeoutInSeconds time in seconds after restarting
-   */
-  void dockerDaemonRestart(def timeoutInSeconds) {
-    print("RESTARTING DOCKER DAEMON...")
-    this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
-    this.pipeline.sh "\$(service docker stop && sleep ${timeoutInSeconds}) || true"
-
-    String setupKey = "skipDaemonSetup"
-    if (!this.configuration.containsKey(setupKey) || !this.configuration.get(setupKey)) {
-
-      String configCommand = "echo '{\"experimental\":false, \"debug\":false, \"storage-driver\":\"vfs\""
-      if (this.configuration.containsKey("proxy")) {
-        configCommand += ", \"insecure-registries\":[\"http://" + this.configuration.get("proxy") + "\"]"
-        configCommand += ", \"registry-mirrors\":[\"http://" + this.configuration.get("proxy") + "\"]"
-      }
-      configCommand += "}' > /etc/docker/daemon.json"
-
-      print("SETTING UP DOCKER DAEMON CONFIG:")
-      print(configCommand)
-      this.pipeline.sh "mkdir /etc/docker || true"
-      this.pipeline.sh configCommand + " || true"
-
-    }
-
-    this.pipeline.sh "killall -9 dockerd || true"
-    this.pipeline.sh "dockerd & sleep ${timeoutInSeconds} || true "
-    print("DOCKER DAEMON RESTART COMPLETE")
   }
 
   /**
@@ -133,15 +95,6 @@ class DockerUtility extends AbstractPipelineUtility {
     this.pipeline.sh "mkdir -p /mnt/docker || true"
     this.pipeline.sh "docker run -i " + envArgs + " --rm -v /mnt/docker:/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
     this.pipeline.sh "rm -fr /mnt/docker || true"
-  }
-
-  /**
-   * Clear image cache
-   */
-  void clearImageCache() {
-    print("CLEANING IMAGE CACHE")
-    this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
-    this.pipeline.sh "docker rmi --force \$(docker images -q) || true"
   }
 
 }
