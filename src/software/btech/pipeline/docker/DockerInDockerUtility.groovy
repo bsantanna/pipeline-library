@@ -1,13 +1,10 @@
 #!groovy
 package software.btech.pipeline.docker
 
-import software.btech.pipeline.AbstractPipelineUtility
-
-
 /**
  * Docker in Docker utility class with reusable pipeline functions based on image bsantanna/jenkins-docker-agent
  */
-class DockerInDockerUtility extends AbstractPipelineUtility {
+class DockerInDockerUtility extends AbstractDockerUtility {
 
   /**
    * Constructor with pipeline reference injection.
