@@ -67,7 +67,7 @@ class DockerUtility extends AbstractPipelineUtility {
       print("SETTING UP DOCKER DAEMON CONFIG:")
       print(configCommand)
       this.pipeline.sh "mkdir /etc/docker || true"
-      this.pipeline.sh configCommand
+      this.pipeline.sh configCommand + " || true"
 
     }
 
