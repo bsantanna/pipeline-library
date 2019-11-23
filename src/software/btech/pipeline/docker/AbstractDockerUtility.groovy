@@ -107,9 +107,9 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
     }
 
     this.pipeline.sh "docker pull ${tag} || true"
-    this.pipeline.sh "mkdir -p /mnt/docker || true"
-    this.pipeline.sh "docker run -i " + envArgs + " --rm -v /mnt/docker:/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
-    this.pipeline.sh "rm -fr /mnt/docker || true"
+    this.pipeline.sh "mkdir -p /tmp/" + className + " || true"
+    this.pipeline.sh "docker run -i " + envArgs + " --rm -v /tmp/" + className + ":/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
+    this.pipeline.sh "rm -fr /tmp/" + className + " || true"
   }
 
 }
