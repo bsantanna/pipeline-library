@@ -27,7 +27,7 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
    * @param baseTag
    * @param tag
    */
-  void buildImage(String buildContext, String baseTag, String tag) {
+  Void buildImage(String buildContext, String baseTag, String tag) {
     print("BUILDING DOCKER IMAGE WITH PARENT IMAGE")
     print("\tTag: ${tag}")
     print("\tBase Tag: ${baseTag}")
@@ -43,7 +43,7 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
    * @param buildContext
    * @param tag
    */
-  void buildImage(String buildContext, String tag) {
+  Void buildImage(String buildContext, String tag) {
     print("BUILDING DOCKER IMAGE")
     print("\tTag: ${tag}")
     print("\tBuild Context: ${buildContext}")
@@ -57,7 +57,7 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
    * Logs in into Docker registry.
    * @param registryCredentialsId credentials id configured in Jenkins.
    */
-  void registryLogin(String registryCredentialsId) {
+  Void registryLogin(String registryCredentialsId) {
     print("PERFORMING REGISTRY LOGIN...")
     // perform inside credential injection block
     this.pipeline.withCredentials([[$class          : 'UsernamePasswordMultiBinding',
@@ -75,41 +75,55 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
   }
 
   /**
-   * Run Docker container with given arguments.
-   *
-   * @param tag image tag
-   * @param volumeSource origin host volume
-   * @param volumeDestination destination guest volume
+   * Get formatted env args
+   * @param envs map of environment variables
+   * @return string formatted as a valid command line argument
    */
-  void runContainer(String tag, String volumeSource, String volumeDestination) {
-    this.runContainerWithCommand(tag, volumeSource, volumeDestination, null, "")
-  }
-
-  /**
-   * Run Docker container with given arguments
-   * @param tag image tag
-   * @param volumeSource origin host volume
-   * @param volumeDestination destination guest volume
-   * @param envs environment variables
-   * @param command command to be executed
-   */
-  void runContainerWithCommand(String tag, String volumeSource, String volumeDestination, Map<String, String> envs, String command) {
-    print("RUNNING DOCKER CONTAINER")
-    print("\tTag: ${tag}")
-    print("\tVolume Source: ${volumeSource}")
-    print("\tVolume Destination: ${volumeDestination}")
-
+  String getFormattedEnvArgs(Map<String, String> envs) {
     String envArgs = ""
     if (envs != null) {
       for (String key : envs.keySet()) {
         envArgs += "-e " + key + "=" + envs.get(key) + " "
       }
     }
-
-    this.pipeline.sh "docker pull ${tag} || true"
-    this.pipeline.sh "mkdir -p /tmp/" + className + " || true"
-    this.pipeline.sh "docker run -i " + envArgs + " --rm -v /tmp/" + className + ":/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag} ${command}"
-    this.pipeline.sh "rm -fr /tmp/" + className + " || true"
+    return envArgs
   }
+
+  /**
+   * Get formatted commands
+   * @param commands command line list
+   * @return string formatted as a valid command line argument
+   */
+  String getFormattedCommandArgs(List<String> commands) {
+    String commandArgs = ""
+    if (commands != null) {
+      commandArgs += String.join("&&", commands)
+    }
+    return commandArgs
+  }
+
+  /**
+   * Run Docker container with given arguments.
+   *
+   * @param tag image tag
+   * @param volumeSource origin host volume
+   * @param volumeDestination destination guest volume
+   */
+  Void runContainer(String tag, String volumeSource, String volumeDestination) {
+    this.runContainerWithCommand(tag, volumeSource, volumeDestination, null, null)
+  }
+
+
+
+  /**
+   * Run Docker container with given arguments
+   * @param tag image tag
+   * @param volumeSource origin host volume
+   * @param volumeDestination destination guest volume
+   * @param envs environment variable map
+   * @param commands command map
+   * @return true if success
+   */
+  abstract Void runContainerWithCommand(String tag, String volumeSource, String volumeDestination, Map<String, String> envs, List<String> commands)
 
 }

@@ -1,6 +1,8 @@
 #!groovy
 package software.btech.pipeline.docker
 
+import java.text.SimpleDateFormat
+
 /**
  * Docker in Docker utility class with reusable pipeline functions based on image bsantanna/jenkins-docker-agent
  */
@@ -50,6 +52,31 @@ class DockerInDockerUtility extends AbstractDockerUtility {
     print("CLEANING IMAGE CACHE")
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
     this.pipeline.sh "docker rmi --force \$(docker images -q) || true"
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  Void runContainerWithCommand(String tag, String volumeSource, String volumeDestination, Map<String, String> envs, List<String> commands) {
+    String dateFormat = new SimpleDateFormat()
+    String date = dateFormat.format(Calendar.getInstance().getTime())
+    String isolatedVolume = "/tmp/" + className + "_" + date
+
+    print("RUNNING DOCKER CONTAINER WITH ISOLATED /var/lib/docker\n" +
+        "\tTag: ${tag}\n" +
+        "\tVolume /var/lib/docker: ${isolatedVolume}\n" +
+        "\tVolume Source: ${volumeSource}\n" +
+        "\tVolume Destination: ${volumeDestination}")
+
+    String envArgs = getFormattedEnvArgs(envs)
+    String commandArgs = getFormattedCommandArgs(commands)
+    this.pipeline.sh "docker pull ${tag} || true"
+    this.pipeline.sh "mkdir -p " + isolatedVolume + " || true"
+    this.pipeline.sh "docker run -i " + envArgs + " --rm -v " + isolatedVolume + ":/var/lib/docker -v ${volumeSource}:${volumeDestination} ${tag} ${commandArgs}"
+    this.pipeline.sh "rm -fr " + isolatedVolume + " || true"
+
+    return null
   }
 
 }
