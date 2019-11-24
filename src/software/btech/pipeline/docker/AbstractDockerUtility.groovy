@@ -28,14 +28,17 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
    * @param tag
    */
   Void buildImage(String buildContext, String baseTag, String tag) {
-    print("BUILDING DOCKER IMAGE WITH PARENT IMAGE")
-    print("\tTag: ${tag}")
-    print("\tBase Tag: ${baseTag}")
-    print("\tBuild Context: ${buildContext}")
+
+    print("BUILDING DOCKER IMAGE WITH PARENT IMAGE" +
+        "\n\tTag: ${tag}" +
+        "\n\tBase Tag: ${baseTag}" +
+        "\n\tBuild Context: ${buildContext}")
+
     this.pipeline.dir(buildContext) {
       this.pipeline.sh "docker pull ${baseTag}"
       this.pipeline.sh "docker build -t ${tag} ."
     }
+
   }
 
   /**
@@ -44,13 +47,16 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
    * @param tag
    */
   Void buildImage(String buildContext, String tag) {
-    print("BUILDING DOCKER IMAGE")
-    print("\tTag: ${tag}")
-    print("\tBuild Context: ${buildContext}")
+
+    print("BUILDING DOCKER IMAGE" +
+        "\n\tTag: ${tag}" +
+        "\n\tBuild Context: ${buildContext}")
+
     this.pipeline.dir(buildContext) {
       this.pipeline.sh "docker pull ${tag}"
       this.pipeline.sh "docker build -t ${tag} ."
     }
+
   }
 
   /**
@@ -58,7 +64,9 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
    * @param registryCredentialsId credentials id configured in Jenkins.
    */
   Void registryLogin(String registryCredentialsId) {
+
     print("PERFORMING REGISTRY LOGIN...")
+
     // perform inside credential injection block
     this.pipeline.withCredentials([[$class          : 'UsernamePasswordMultiBinding',
                                     credentialsId   : registryCredentialsId,
@@ -112,7 +120,6 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
   Void runContainer(String tag, String volumeSource, String volumeDestination) {
     this.runContainerWithCommand(tag, volumeSource, volumeDestination, null, null)
   }
-
 
 
   /**

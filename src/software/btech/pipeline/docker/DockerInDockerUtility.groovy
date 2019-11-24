@@ -23,7 +23,7 @@ class DockerInDockerUtility extends AbstractDockerUtility {
    *
    * @param timeoutInSeconds time in seconds after restarting
    */
-  void dockerDaemonRestart(def timeoutInSeconds) {
+  Void dockerDaemonRestart(def timeoutInSeconds) {
     print("RESTARTING DOCKER DAEMON...")
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
     this.pipeline.sh "\$(service docker stop && sleep ${timeoutInSeconds}) || true"
@@ -49,7 +49,7 @@ class DockerInDockerUtility extends AbstractDockerUtility {
   /**
    * Clear image cache
    */
-  void clearImageCache() {
+  Void clearImageCache() {
     print("CLEANING IMAGE CACHE")
     this.pipeline.sh "docker stop \$(docker ps -aq) && docker rm \$(docker ps -aq) || true"
     this.pipeline.sh "docker rmi --force \$(docker images -q) || true"
