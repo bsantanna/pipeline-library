@@ -53,7 +53,6 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
         "\n\tBuild Context: ${buildContext}")
 
     this.pipeline.dir(buildContext) {
-      this.pipeline.sh "docker pull ${tag}"
       this.pipeline.sh "docker build -t ${tag} ."
     }
 
