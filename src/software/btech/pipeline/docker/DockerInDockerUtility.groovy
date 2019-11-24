@@ -1,6 +1,7 @@
 #!groovy
 package software.btech.pipeline.docker
 
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 
 /**
@@ -59,7 +60,7 @@ class DockerInDockerUtility extends AbstractDockerUtility {
    */
   @Override
   Void runContainerWithCommand(String tag, String volumeSource, String volumeDestination, Map<String, String> envs, List<String> commands) {
-    String dateFormat = new SimpleDateFormat()
+    DateFormat dateFormat = new SimpleDateFormat()
     String date = dateFormat.format(Calendar.getInstance().getTime())
     String isolatedVolume = "/tmp/" + className + "_" + date
 
