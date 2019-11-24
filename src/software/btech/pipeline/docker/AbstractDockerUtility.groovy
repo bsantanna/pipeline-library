@@ -106,7 +106,7 @@ abstract class AbstractDockerUtility extends AbstractPipelineUtility {
     if (commands != null) {
       commandArgs += String.join("&&", commands)
     }
-    return "bash -c '" + commandArgs + "'"
+    return "sh -c '" + commandArgs + "'"
   }
 
   /**
