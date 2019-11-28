@@ -60,7 +60,7 @@ class DockerInDockerUtility extends AbstractDockerUtility {
    */
   @Override
   Void runContainerWithCommand(String tag, String volumeSource, String volumeDestination, Map<String, String> envs, List<String> commands) {
-    DateFormat dateFormat = new SimpleDateFormat()
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd")
     String date = dateFormat.format(Calendar.getInstance().getTime())
     String isolatedVolume = "/tmp/" + className + "_" + date
 
