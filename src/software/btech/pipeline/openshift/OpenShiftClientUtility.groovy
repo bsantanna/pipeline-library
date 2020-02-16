@@ -34,12 +34,7 @@ class OpenShiftClientUtility extends AbstractPipelineUtility {
           it.startBuild()
         }
 
-        this.pipeline.timeout(timeout) {
-          builds.untilEach(1) {
-            return it.object().status.phase == "Complete"
-          }
-        }
-        
+        this.pipeline.sleep(time: timeout, unit: "MINUTES")
       }
     }
   }
