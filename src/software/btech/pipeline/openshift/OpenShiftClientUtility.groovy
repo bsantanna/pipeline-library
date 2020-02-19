@@ -26,6 +26,27 @@ class OpenShiftClientUtility extends AbstractPipelineUtility {
   }
 
   /**
+   * Returns a list of complete build objects
+   * @param startTimestamp
+   * @return
+   */
+  List getCompleteBuilds(long startTimestamp) {
+    def buildList = this.pipeline.openshift.selector("build").objects()
+    def completeBuilds = []
+    for (Object build : buildList) {
+      if (build.status != null && build.status.startTimestamp != null) {
+        long buildStartTimestamp = this.dateFormat.parse(build.status.startTimestamp).getTime()
+        if (buildStartTimestamp > startTimestamp) {
+          if ("Complete".equalsIgnoreCase(build.status.phase)) {
+            completeBuilds.add(build)
+          }
+        }
+      }
+    }
+    return completeBuilds
+  }
+
+  /**
    * Builds a project from OpenShift Cluster
    * @param projectName
    * @param timeout for exiting
@@ -47,26 +68,14 @@ class OpenShiftClientUtility extends AbstractPipelineUtility {
 
           boolean isComplete = false
           while (!isComplete) {
-
-            def buildList = this.pipeline.openshift.selector("build").objects()
-            def completeBuilds = []
-            for (Object build : buildList) {
-              if (build.status != null && build.status.startTimestamp != null) {
-                long buildStartTimestamp = this.dateFormat.parse(build.status.startTimestamp).getTime()
-                if (buildStartTimestamp > startTimestamp) {
-                  if ("Complete".equalsIgnoreCase(build.status.phase)) {
-                    completeBuilds.add(build)
-                  }
-                }
-              }
-            }
-
             // loop condition
+            List completeBuilds = getCompleteBuilds(startTimestamp)
             isComplete = completeBuilds.size() == startedBuildCount
             if (!isComplete) {
               int sleepTime = 5
               String unit = "MINUTES"
-              this.print(String.format("Sleeping for %s %s", timeout, unit.toLowerCase()))
+              this.print(String.format("From the %s started build jobs, %s are complete.",
+                  startedBuildCount, completeBuilds.size(), sleepTime, unit.toLowerCase()))
               this.pipeline.sleep(time: sleepTime, unit: unit)
             } else {
               this.print("Build Complete")
