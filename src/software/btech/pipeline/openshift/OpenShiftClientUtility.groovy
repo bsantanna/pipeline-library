@@ -51,10 +51,12 @@ class OpenShiftClientUtility extends AbstractPipelineUtility {
             def buildList = this.pipeline.openshift.selector("build").objects()
             def completeBuilds = []
             for (Object build : buildList) {
-              long buildStartTimestamp = this.dateFormat.parse(build.status.startTimestamp).getTime()
-              if (buildStartTimestamp > startTimestamp) {
-                if ("Complete".equalsIgnoreCase(build.status.phase)) {
-                  completeBuilds.add(build)
+              if (build.status != null && build.status.startTimestamp != null) {
+                long buildStartTimestamp = this.dateFormat.parse(build.status.startTimestamp).getTime()
+                if (buildStartTimestamp > startTimestamp) {
+                  if ("Complete".equalsIgnoreCase(build.status.phase)) {
+                    completeBuilds.add(build)
+                  }
                 }
               }
             }
