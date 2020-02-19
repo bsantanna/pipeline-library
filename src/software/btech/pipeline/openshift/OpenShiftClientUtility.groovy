@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
  */
 class OpenShiftClientUtility extends AbstractPipelineUtility {
 
-  final String clusterName;
+  final String clusterName
 
   final SimpleDateFormat dateFormat
 
@@ -52,7 +52,7 @@ class OpenShiftClientUtility extends AbstractPipelineUtility {
    * @param timeout for exiting
    * @return
    */
-  Void buildProject(String projectName, Integer timeout) {
+  Void buildProject(String projectName, int timeout) {
     this.pipeline.timeout(timeout) {
       this.pipeline.openshift.withCluster(this.clusterName) {
         this.pipeline.openshift.withProject(projectName) {
@@ -78,10 +78,7 @@ class OpenShiftClientUtility extends AbstractPipelineUtility {
                   startedBuildCount, completeBuilds.size(), sleepTime, unit.toLowerCase()))
               this.pipeline.sleep(time: sleepTime, unit: unit)
             } else {
-              this.print("Build Complete")
-              for (Object build : completeBuilds) {
-                build.describe()
-              }
+              this.print(String.format("Build Complete, all %s finished with Complete Status", startTimestamp))
             }
           }
         }
