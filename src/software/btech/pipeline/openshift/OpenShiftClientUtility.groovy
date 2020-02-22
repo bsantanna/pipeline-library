@@ -78,7 +78,7 @@ class OpenShiftClientUtility extends AbstractPipelineUtility {
                   startedBuildCount, completeBuilds.size(), sleepTime, unit.toLowerCase()))
               this.pipeline.sleep(time: sleepTime, unit: unit)
             } else {
-              this.print(String.format("Build Complete, all %s finished with Complete Status", startTimestamp))
+              this.print(String.format("Build Complete, all %s finished with Complete Status", startedBuildCount))
             }
           }
         }
