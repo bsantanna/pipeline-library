@@ -89,4 +89,19 @@ class OpenShiftClientUtility extends AbstractPipelineUtility {
     }
   }
 
+  /**
+   * Builds a binary Docker image from remote URL resource, handy for compiled code
+   * @param projectName project namespace
+   * @param buildConfigName build config name
+   * @param archiveURL archive remote url
+   */
+  Void buildBinaryImage(String projectName, String buildConfigName, String archiveURL) {
+    this.pipeline.openshift.withCluster(this.clusterName) {
+      this.pipeline.openshift.withProject(projectName) {
+        def result = this.pipeline.openshift.raw("start-build", buildConfigName, String.format("--from-archive=%s", archiveURL))
+        this.print(String.format("Build Creation result: %s", result.out))
+      }
+    }
+  }
+
 }
