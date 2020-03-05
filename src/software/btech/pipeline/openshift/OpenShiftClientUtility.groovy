@@ -59,9 +59,12 @@ class OpenShiftClientUtility extends AbstractPipelineUtility {
 
           long startTimestamp = Calendar.getInstance().getTimeInMillis()
           int startedBuildCount = 0
-          this.pipeline.openshift.selector('bc').withEach {
-            it.startBuild()
-            startedBuildCount++
+          def buildConfigs = openshift.selector("bc").objects()
+          for (Object buildConfig : buildConfigs) {
+            if (!"Binary".equals(buildConfig.spec.source.type)) {
+              buildConfig.startBuild()
+              startedBuildCount++
+            }
           }
 
           this.print(String.format("Started %s build jobs", startedBuildCount))
