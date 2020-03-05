@@ -31,14 +31,28 @@ class ArchiveUtility extends AbstractPipelineUtility {
   /**
    * Archive file, useful for storing dependencies from previous builds such as maven m2 repository or node_modules
    * @param filename
+   * @param directory
    */
   void archiveFile(String filename, String directory) {
     try {
-      this.pipeline.sh "tar -czf ${filename} ${directory}"
+      this.compressDirectory(filename, directory)
       this.pipeline.archiveArtifacts filename
       this.pipeline.sh "rm ${filename}"
     } catch (e) {
       defaultErrorHandler("Failure archiving artifacts.", e)
+    }
+  }
+
+  /**
+   * Compress directory used for generating tarballs
+   * @param filename
+   * @param directory
+   */
+  void compressDirectory(String filename, String directory) {
+    try {
+      this.pipeline.sh "tar -czf ${filename} ${directory}"
+    } catch (e) {
+      defaultErrorHandler("Failure compressing artifacts.", e)
     }
   }
 
