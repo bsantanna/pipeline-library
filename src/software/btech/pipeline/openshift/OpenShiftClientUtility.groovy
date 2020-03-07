@@ -75,7 +75,7 @@ class OpenShiftClientUtility extends AbstractPipelineUtility {
             List completeBuilds = getCompleteBuilds(startTimestamp)
             isComplete = completeBuilds.size() == startedBuildCount
             if (!isComplete) {
-              int sleepTime = 5
+              int sleepTime = 1
               String unit = "MINUTES"
               this.print(String.format("From the %s started build jobs, %s are complete.",
                   startedBuildCount, completeBuilds.size(), sleepTime, unit.toLowerCase()))
