@@ -1,3 +1,3 @@
-# Btech Pipeline Library
+# Pipeline Library
 
 Jenkins Pipeline Library 
